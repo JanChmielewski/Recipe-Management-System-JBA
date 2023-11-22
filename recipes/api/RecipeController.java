@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import recipes.model.Recipe;
 import recipes.service.RecipeService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("api/recipe")
 public class RecipeController {
@@ -15,15 +18,18 @@ public class RecipeController {
         this.recipeService = recipeService;
     }
 
-    @PostMapping
-    public ResponseEntity<String> addRecipe(@RequestBody Recipe recipe) {
-        recipeService.addRecipe(recipe);
-        return ResponseEntity.ok("Recipe added successfully!");
+    @PostMapping("/new")
+    public ResponseEntity<Map<String, Integer>> addRecipe(@RequestBody Recipe recipe) {
+        int recipeId = recipeService.addRecipe(recipe);
+
+        Map<String, Integer> responseBody = new HashMap<>();
+        responseBody.put("id", recipeId);
+        return ResponseEntity.ok(responseBody);
     }
 
-    @GetMapping
-    public ResponseEntity<Recipe> getRecipe() {
-        Recipe recipe = recipeService.getRecipe();
+    @GetMapping("/{id}")
+    public ResponseEntity<Recipe> getRecipe(@PathVariable int id) {
+        Recipe recipe = recipeService.getRecipeById(id);
         if (recipe != null) {
             return ResponseEntity.ok(recipe);
         } else {
