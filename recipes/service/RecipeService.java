@@ -1,22 +1,40 @@
 package recipes.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import recipes.model.Recipe;
+import recipes.repository.RecipeRepository;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecipeService {
-    private final Map<Integer, Recipe> recipes = new HashMap<>();
-    private int nextId = 1;
 
-    public int addRecipe(Recipe recipe) {
-        recipes.put(nextId, recipe);
-        return nextId++;
+    private final RecipeRepository recipeRepository;
+
+    @Autowired
+    public RecipeService(RecipeRepository recipeRepository) {
+        this.recipeRepository = recipeRepository;
     }
 
-    public Recipe getRecipeById(int id) {
-        return recipes.get(id);
+    public List<Recipe> getAllRecipes() {
+        List<Recipe> recipeAll = new ArrayList<>();
+        recipeRepository.findAll().forEach(recipeAll::add);
+        return recipeAll;
+    }
+
+    public Optional<Recipe> getRecipeById(Long id) {
+        return recipeRepository.findById(id);
+    }
+
+    public Long saveOrUpdate(Recipe recipe) {
+        Recipe savedRecipe = recipeRepository.save(recipe);
+        return savedRecipe.getId();
+    }
+
+    public void deleteRecipeById(Long id) {
+        recipeRepository.deleteById(id);
     }
 }
