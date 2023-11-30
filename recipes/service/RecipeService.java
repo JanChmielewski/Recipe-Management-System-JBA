@@ -37,4 +37,12 @@ public class RecipeService {
     public void deleteRecipeById(Long id) {
         recipeRepository.deleteById(id);
     }
+
+    public List<Recipe> searchByCategory(String category) {
+        return recipeRepository.findByCategoryIgnoreCaseOrderByDateDesc(category);
+    }
+
+    public List<Recipe> searchByName(String name) {
+        return recipeRepository.findByNameIgnoreCaseContainsOrderByDateDesc(name);
+    }
 }

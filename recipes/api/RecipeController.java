@@ -8,9 +8,8 @@ import recipes.model.Recipe;
 import recipes.service.RecipeService;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/recipe")
@@ -19,7 +18,6 @@ public class RecipeController {
 
     @Autowired
     private RecipeService recipeService;
-
 
     @PostMapping("/new")
     public ResponseEntity<Map<String, Long>> addRecipe(@Valid @RequestBody Recipe recipe) {
@@ -54,5 +52,42 @@ public class RecipeController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateRecipe(@Valid @PathVariable Long id, @Valid @RequestBody Recipe recipe) {
+        Optional<Recipe> existingRecipe = recipeService.getRecipeById(id);
+
+        if (existingRecipe.isPresent()) {
+            Recipe recipeToUpdate = existingRecipe.get();
+            recipeToUpdate.setName(recipe.getName());
+            recipeToUpdate.setCategory(recipe.getCategory());
+            recipeToUpdate.setDate(LocalDateTime.now());
+            recipeToUpdate.setDescription(recipe.getDescription());
+            recipeToUpdate.setIngredients(recipe.getIngredients());
+            recipeToUpdate.setDirections(recipe.getDirections());
+
+            recipeService.saveOrUpdate(recipeToUpdate);
+
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchRecipe(@RequestParam(required = false) String category,
+                                          @RequestParam(required = false) String name) {
+        if (category != null && name != null) {
+            return ResponseEntity.badRequest().build();
+        } else if (category != null) {
+            List<Recipe> recipes = recipeService.searchByCategory(category.toLowerCase());
+            return ResponseEntity.ok(recipes.isEmpty() ? Collections.emptyList() : recipes);
+        } else if (name != null) {
+            List<Recipe> recipes = recipeService.searchByName(name.toLowerCase());
+            return ResponseEntity.ok(recipes.isEmpty() ? Collections.emptyList() : recipes);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
