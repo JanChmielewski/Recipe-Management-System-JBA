@@ -16,9 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "RECIPE")
-@Entity
-public class Recipe {
+public class RecipeDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
@@ -37,14 +35,11 @@ public class Recipe {
     private String description;
 
     @NotEmpty
-    @ElementCollection
-    @CollectionTable(name = "INGRIDIENTS", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "ingredient")
     private List<String> ingredients = new ArrayList<>();
 
     @NotEmpty
-    @ElementCollection
-    @CollectionTable(name = "DIRECTIONS", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "direction")
     private List<String> directions = new ArrayList<>();
+
+    @JsonIgnore
+    private Long authorId;
 }
